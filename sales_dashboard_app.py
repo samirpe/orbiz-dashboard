@@ -17,7 +17,7 @@ st.markdown("""
             font-family: 'Poppins', sans-serif;
         }
         .main-title {
-            font-size: 42px;
+            font-size: 46px;
             font-weight: 700;
             margin-bottom: 0.5rem;
             text-align: center;
@@ -43,20 +43,20 @@ col_logo, col_title, col_spacer = st.columns([1, 4, 1])
 with col_logo:
     st.image(logo, width=300)
 with col_title:
-    st.markdown("<div class='main-title'>Sales & Fulfillment Dashboard</div>", unsafe_allow_html=True)
+    st.markdown("<div class='main-title'>Orbiz Sales & Fulfillment Dashboard</div>", unsafe_allow_html=True)
 
 uploaded_file = st.file_uploader("Upload your Sales Order Excel file", type=["xlsx"])
 
 if uploaded_file:
     df = pd.read_excel(uploaded_file)
-    df['Order Date'] = pd.to_datetime(df['Order Date'], errors='coerce').dt.date
+    df['Order Date'] = pd.to_datetime(df['Order Date'], errors='coerce')
 
     # Date filter - default to Month-to-date
     st.markdown("<div class='section-heading'>📅 Filter by Date</div>", unsafe_allow_html=True)
-    today = datetime.today().date()
-    month_start = datetime(today.year, today.month, 1).date()
+    today = datetime.today()
+    month_start = datetime(today.year, today.month, 1)
     start_date, end_date = st.date_input("Select date range", [month_start, today])
-    df = df[(df['Order Date'] >= start_date) & (df['Order Date'] <= end_date)]
+    df = df[(df['Order Date'] >= pd.to_datetime(start_date)) & (df['Order Date'] <= pd.to_datetime(end_date))]
 
     # Format currency to Indian system
     def format_inr(val):
@@ -106,7 +106,7 @@ if uploaded_file:
     df_top_sales['Total'] = df_top_sales['Total'].apply(format_inr)
     df_top_sales['Paid'] = df_top_sales['Paid'].apply(format_inr)
 
-    df_outstanding = sales_by_person[['First Name', 'Total', 'Payment to Collect']].copy()
+    df_outstanding = sales_by_person.copy()
     df_outstanding['Total'] = df_outstanding['Total'].apply(format_inr)
     df_outstanding['Payment to Collect'] = df_outstanding['Payment to Collect'].apply(format_inr)
 
@@ -114,13 +114,13 @@ if uploaded_file:
     c1, c2, c3 = st.columns(3)
     with c1:
         st.markdown("**Top 5 Salesman**")
-        st.dataframe(df_top_sales.head(5).style.set_properties(**{'text-align': 'right'}), use_container_width=True, hide_index=True)
+        st.dataframe(df_top_sales.head(5)[['First Name', 'Total', 'Paid']].style.set_properties(**{'text-align': 'right'}), use_container_width=True, hide_index=True)
     with c2:
         st.markdown("**Bottom 5 Salesman**")
-        st.dataframe(df_top_sales.tail(5).style.set_properties(**{'text-align': 'right'}), use_container_width=True, hide_index=True)
+        st.dataframe(df_top_sales.tail(5)[['First Name', 'Total', 'Paid']].style.set_properties(**{'text-align': 'right'}), use_container_width=True, hide_index=True)
     with c3:
         st.markdown("**Top 5 by Outstanding Payments**")
-        st.dataframe(df_outstanding.sort_values(by='Payment to Collect', ascending=False).head(5).style.set_properties(**{'text-align': 'right'}), use_container_width=True, hide_index=True)
+        st.dataframe(df_outstanding.sort_values(by='Payment to Collect', ascending=False).head(5)[['First Name', 'Total', 'Payment to Collect']].style.set_properties(**{'text-align': 'right'}), use_container_width=True, hide_index=True)
 
     # Customer Insights
     st.markdown("<div class='section-heading'>🧾 Customer Insights</div>", unsafe_allow_html=True)
@@ -141,10 +141,10 @@ if uploaded_file:
 
     # Order Dispatch Check
     st.markdown("<div class='section-heading'>📋 Orders Older Than 3 Days & Not Fully Dispatched</div>", unsafe_allow_html=True)
-    cutoff_date = today - timedelta(days=3)
-    filtered_df = df[(df['Order Date'] <= cutoff_date) & (df['Delivery Status'] != 'Fully Dispatched')].copy()
+    cutoff_date = datetime.now().date() - timedelta(days=3)
+    filtered_df = df[(df['Order Date'].dt.date <= cutoff_date) & (df['Delivery Status'] != 'Fully Dispatched')].copy()
     filtered_df = filtered_df.sort_values(by='Order Date', ascending=True)
-    filtered_df['Order Date'] = pd.to_datetime(filtered_df['Order Date']).dt.strftime('%d-%b-%y')
+    filtered_df['Order Date'] = filtered_df['Order Date'].dt.strftime('%d-%b-%y')
     display_df = filtered_df[['Order Reference', 'Order Date', 'Customer', 'Salesperson', 'Delivery Status']]
     st.dataframe(display_df.style.set_properties(**{'text-align': 'right'}), use_container_width=True, hide_index=True)
 
