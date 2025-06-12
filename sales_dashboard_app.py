@@ -170,17 +170,5 @@ if uploaded_file:
     except ModuleNotFoundError:
         st.warning("PDF export is disabled because the 'fpdf' package is not installed. To enable it, run: pip install fpdf")
 
-    # Line chart for Sales over Time
-    st.markdown("<div class='section-heading'>📈 Sales Trend Over Time</div>", unsafe_allow_html=True)
-    sales_trend = df.groupby(df['Order Date'])['Total'].sum().reset_index()
-    sales_trend.columns = ['Date', 'Total Sales']
-    fig, ax = plt.subplots()
-    ax.plot(sales_trend['Date'], sales_trend['Total Sales'], marker='o', linestyle='-', color='skyblue')
-    ax.set_title('Sales vs Date')
-    ax.set_xlabel('Date')
-    ax.set_ylabel('Total Sales')
-    plt.xticks(rotation=45)
-    st.pyplot(fig)
-
 else:
     st.info("📂 Please upload an Excel file to view the dashboard.")
