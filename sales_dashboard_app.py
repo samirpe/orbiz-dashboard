@@ -17,13 +17,13 @@ st.markdown("""
             font-family: 'Poppins', sans-serif;
         }
         .main-title {
-            font-size: 36px;
+            font-size: 42px;
             font-weight: 700;
             margin-bottom: 0.5rem;
             text-align: center;
         }
         .section-heading {
-            font-size: 24px;
+            font-size: 32px;
             font-weight: 600;
             margin-top: 2rem;
             margin-bottom: 1rem;
@@ -41,9 +41,9 @@ logo_path = os.path.join(os.path.dirname(__file__), "Orbiz Logo.jpg")
 logo = Image.open(logo_path)
 col_logo, col_title, col_spacer = st.columns([1, 4, 1])
 with col_logo:
-    st.image(logo, width=100)
+    st.image(logo, width=300)
 with col_title:
-    st.markdown("<div class='main-title'>📊 Orbiz Sales & Fulfillment Dashboard</div>", unsafe_allow_html=True)
+    st.markdown("<div class='main-title'>Sales & Fulfillment Dashboard</div>", unsafe_allow_html=True)
 
 uploaded_file = st.file_uploader("Upload your Sales Order Excel file", type=["xlsx"])
 
